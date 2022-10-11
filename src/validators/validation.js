@@ -29,4 +29,9 @@ const isValidstreet = function(street){
     return false
 }
 
-module.exports={isValidEmail,isValidPassword,isValidName,isValidPhone,isValidPincode,isValidstreet}
+const isValidRequestBody = function(requestBody){
+    if(Object.keys(requestBody).length>0)return true
+    return false
+}
+
+module.exports={isValidEmail,isValidPassword,isValidName,isValidPhone,isValidPincode,isValidstreet,isValidRequestBody}
