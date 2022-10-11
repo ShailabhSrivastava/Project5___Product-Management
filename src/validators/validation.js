@@ -1,3 +1,5 @@
+const mongoose = require('mongoose')
+
 const isValidEmail = function (mail) {
     if (/^[a-z0-9_]{1,}@[a-z]{3,}[.]{1}[a-z]{3,6}$/.test(mail)) {
     return true;
@@ -10,7 +12,7 @@ const isValidPassword = function (password) {
 }
 
 const isValidName = function(name) {
-    if (/^[A-Za-z]{3,15}/.test(name)) return true
+    if (/^[a-zA-Z\. ]*$/.test(name)) return true
    return false
 }
 
@@ -25,7 +27,7 @@ const isValidPincode = function(pincode){
 }
 
 const isValidstreet = function(street){
-    if(/^[a-zA-Z\. ]*$/.test(street))return true
+    if(/^[A-Za-z]{3,15}/.test(street))return true     
     return false
 }
 
@@ -34,4 +36,8 @@ const isValidRequestBody = function(requestBody){
     return false
 }
 
-module.exports={isValidEmail,isValidPassword,isValidName,isValidPhone,isValidPincode,isValidstreet,isValidRequestBody}
+const isValidObjectId = function (objectId) {
+    return mongoose.Types.ObjectId.isValid(objectId)
+}
+
+module.exports={isValidEmail,isValidPassword,isValidName,isValidPhone,isValidPincode,isValidstreet,isValidRequestBody,isValidObjectId}

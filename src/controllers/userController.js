@@ -1,7 +1,8 @@
 const bcrypt = require("bcrypt")
 const userModel = require("../models/userModel")
 const { uploadFile } = require("../aws/aws")
-const { isValidEmail, isValidPassword, isValidName, isValidPhone, isValidPincode, isValidstreet,isValidRequestBody } = require("../validators/validation")
+const {isValidObjectId, isValidEmail, isValidPassword, isValidName, isValidPhone, isValidPincode, isValidstreet,isValidRequestBody } = require("../validators/validation")
+const jwt = require("jsonwebtoken")
 
 const createUser = async function (req, res) {
     try {
@@ -84,4 +85,48 @@ const createUser = async function (req, res) {
     }
 }
 
-module.exports = { createUser }
+const userLogin = async function (req, res) {
+    let data = req.body
+    let { email, password } = data
+
+    if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please Enter data" })
+
+    if (!email) return res.status(400).send({ status: false, message: 'Please enter email' })
+    if (!isValidEmail(email)) return res.status(400).send({ status: false, message: 'Please enter valid email' })
+
+    if (!password) return res.status(400).send({ status: false, message: 'Please enter password' })
+
+    const Login = await userModel.findOne({ email })
+    if (!Login) return res.status(400).send({ status: false, message: 'Not a register email Id' })
+
+    //----------[Password Verification]
+    let decodePwd = await bcrypt.compare(password, Login.password)
+    if (!decodePwd) return res.status(400).send({ status: false, message: 'Password not match' })
+
+    //----------[JWT token generate]
+    let token = jwt.sign({
+        userId: Login._id.toString()
+    }, "GroupNumber39", { expiresIn: '50d' })
+
+    res.setHeader("x-api-key", token)
+
+    return res.status(200).send({ status: true, message: 'User login successfull', data: { userId: Login._id, token: token } })
+}
+
+const getProfile = async function (req, res) {
+    try {
+        const userId = req.params.userId
+
+        if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'Not a valid userId' })
+
+        const checkUser = await userModel.findById(userId)
+        if (!checkUser) return res.status(400).send({ status: false, message: "UserId invalid" })
+
+        return res.status(200).send({ status: true, message: "User profile details", data: checkUser })
+    }
+    catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+
+module.exports = { createUser, userLogin, getProfile }
