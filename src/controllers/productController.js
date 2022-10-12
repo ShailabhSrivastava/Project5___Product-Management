@@ -199,7 +199,7 @@ const createProducts = async (req, res) => {
 const updateProducts = async (req, res) => {
   try {
     let data = req.body;
-    let userId = req.params.userId
+    let productId = req.params.productId
     let file = req.files;
 
     let {
@@ -233,7 +233,7 @@ const updateProducts = async (req, res) => {
       if (checkTitle)
         return res.status(400).send({
           status: false,
-          message: `Product with this ${title} is Already Present`,
+          message: `Product with title '${title}' is Already Present`,
         });
       updateProduct["title"] = title;
     }
@@ -292,8 +292,6 @@ const updateProducts = async (req, res) => {
           status: false,
           message: "Image Should be of JPEG/ JPG/ PNG",
         });
-        let url = await aws1.uploadFile(file[0]);
-        updateProduct["productImage"] = url;
       }
       let url = await aws1.uploadFile(file[0]);
       data["productImage"] = url;
@@ -345,7 +343,13 @@ const updateProducts = async (req, res) => {
     }
 
     //after checking all the validation, than creating the product data
-    const createdProduct = await productModel.findOneAndUpdate(updateProduct);
+    const createdProduct = await productModel.findOneAndUpdate(
+      { _id:productId },
+      updateProduct,
+      {
+        new: true,
+      }
+    );
     return res.status(201).send({
       status: true,
       message: "Product is Created Successfully",
