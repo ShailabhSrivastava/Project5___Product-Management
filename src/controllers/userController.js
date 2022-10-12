@@ -13,6 +13,8 @@ const {
 } = require("../validators/validation");
 const jwt = require("jsonwebtoken");
 
+//============================================CREATE USER ============================================
+
 const createUser = async function (req, res) {
   try {
     let data = req.body;
@@ -100,7 +102,6 @@ const createUser = async function (req, res) {
             .status(400)
             .send({ status: false, message: "In shipping, street is invalid" });
       }
-
       if (!address.shipping.city)
         return res
           .status(400)
@@ -125,6 +126,7 @@ const createUser = async function (req, res) {
           });
       }
     }
+    
     if (address.billing) {
       if (!address.billing.street)
         return res
@@ -229,7 +231,8 @@ const userLogin = async function (req, res) {
   });
 };
 
-//=================================GET PROFILE ======================================
+//=================================GET PROFILE ====================================================================
+
 const getProfile = async function (req, res) {
   try {
     const userId = req.params.userId;
@@ -257,16 +260,14 @@ const updateUser = async function (req, res) {
   try {
     let userId = req.params.userId;
     let data = req.body;
-    const { fname, lname, email, profileImage, phone, password, address } =
+    const { fname, lname, email, phone, password, address } =
       data;
 
     if (!isValidObjectId(userId)) {
-      return res
-        .status(400)
-        .send({
-          status: false,
-          message: "Please enter valid Object Params Id",
-        });
+      return res.status(400).send({
+        status: false,
+        message: "Please enter valid Object Params Id",
+      });
     }
 
     let user = await userModel.findById(userId);
@@ -297,26 +298,29 @@ const updateUser = async function (req, res) {
 
     let updateQueries = {};
 
-if(fname){ 
-    if (!isValidName(fname))
-      return res
-        .status(400)
-        .send({ status: false, message: "fname is invalid" });
-    updateQueries['fname']=fname}
+    if (fname) {
+      if (!isValidName(fname))
+        return res
+          .status(400)
+          .send({ status: false, message: "fname is invalid" });
+      updateQueries["fname"] = fname;
+    }
 
-if(lname){    
-    if (!isValidName(lname))
-      return res
-        .status(400)
-        .send({ status: false, message: "lname is invalid" });
-  updateQueries['lnmae']=lname}
+    if (lname) {
+      if (!isValidName(lname))
+        return res
+          .status(400)
+          .send({ status: false, message: "lname is invalid" });
+      updateQueries["lnmae"] = lname;
+    }
 
- if(email) {
-    if (!isValidEmail(email))
-      return res
-        .status(400)
-        .send({ status: false, message: "email is invalid" });
-    updateQueries['email']=email}
+    if (email) {
+      if (!isValidEmail(email))
+        return res
+          .status(400)
+          .send({ status: false, message: "email is invalid" });
+      updateQueries["email"] = email;
+    }
 
     let emailExist = await userModel.findOne({ email: email });
     if (emailExist)
@@ -325,25 +329,32 @@ if(lname){
         message: "user with this email already exists",
       });
 
-if(phone){      
-    if (!isValidPhone(phone))
-      return res
-        .status(400)
-        .send({ status: false, message: "phone is invalid" });
-  updateQueries['phone'] = phone}
+    if (phone) {
+      if (!isValidPhone(phone))
+        return res
+          .status(400)
+          .send({ status: false, message: "phone is invalid" });
 
-    let phoneExist = await userModel.findOne({ phone: phone });
-    if (phoneExist)
-      return res.status(400).send({
-        status: false,
-        message: "user with this phone number already exists",
-      });
+      let phoneExist = await userModel.findOne({ phone: phone });
+      if (phoneExist)
+        return res.status(400).send({
+          status: false,
+          message: "user with this phone number already exists",
+        });
+      updateQueries["phone"] = phone;
+    }
 
-if(password){      
-    if (password && !isValidPassword(password))
-      return res
-        .status(400)
-        .send({ status: false, message: "password is invalid" });}
+    if (password) {
+      if (password && !isValidPassword(password))
+        return res
+          .status(400)
+          .send({ status: false, message: "password is invalid" });
+
+      //Saving password in encrypted format
+      let salt = await bcrypt.genSalt(10);
+      data.password = await bcrypt.hash(data.password, salt);
+      updateQueries["password"] = password;
+    }
 
     if (address) {
       let street = address.shipping.street;
