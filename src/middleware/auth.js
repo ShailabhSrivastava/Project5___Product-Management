@@ -1,5 +1,5 @@
-// const jwt = require("jsonwebtoken");
-// const mongoose = require('mongoose')
+const jwt = require("jsonwebtoken");
+const mongoose = require('mongoose')
 
 // const authentication = async function (req, res, next) {
 //     try {
@@ -14,4 +14,31 @@
 //     }
 // }
 
-// module.exports = { authentication }
+
+const authentication = async (req, res, next) => {
+  try {
+    let token = req.headers["x-api-key"] || req.headers["X-API-KEY"];
+    if (!token)
+      return res
+        .status(400)
+        .send({ status: false, msg: "token must be present" });
+
+    jwt.verify(token, "i'm as calm as the sea", (err, decodedToken) => {
+      if (err) {
+        let message =
+          err.message === "jwt expired"
+            ? "token is expired"
+            : "token is invalid";
+        return res.status(401).send({ status: false, message: message });
+      }
+      req.headers = decodedToken;
+      next();
+    });
+  } catch (err) {
+    return res.status(500).send({ status: false, message: err.message });
+  }
+};
+
+
+
+module.exports = { authentication }

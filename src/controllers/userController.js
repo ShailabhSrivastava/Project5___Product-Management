@@ -174,6 +174,7 @@ const createUser = async function (req, res) {
   }
 };
 
+//===================================LOGIN==========================================
 const userLogin = async function (req, res) {
   let data = req.body;
   let { email, password } = data;
@@ -228,6 +229,7 @@ const userLogin = async function (req, res) {
   });
 };
 
+//=================================GET PROFILE ======================================
 const getProfile = async function (req, res) {
   try {
     const userId = req.params.userId;
@@ -250,40 +252,71 @@ const getProfile = async function (req, res) {
 };
 
 //======================================================UPDATE USER=====================================================
-// const isValid = function (value) {
-//   if (typeof value === "undefined" || value === null) return false;
-//   if (typeof value === "string" && value.trim().length === 0) return false;
-//   return true;
-// };
 
 const updateUser = async function (req, res) {
   try {
     let userId = req.params.userId;
     let data = req.body;
-    // console.log(data);
     const { fname, lname, email, profileImage, phone, password, address } =
       data;
-    let updateQueries = {};
 
-    if (Object.keys(data).length == 0)
+    if (!isValidObjectId(userId)) {
+      return res
+        .status(400)
+        .send({
+          status: false,
+          message: "Please enter valid Object Params Id",
+        });
+    }
+
+    let user = await userModel.findById(userId);
+    if (!user) {
+      return res
+        .status(400)
+        .send({ status: false, message: "This user is not found" });
+    }
+
+    //AUTHORIZATION
+    let tokenUserId = req.userId;
+    if (tokenUserId !== userId) {
+      return res
+        .status(403)
+        .send({ status: false, message: "User does not exist" });
+    }
+
+    if (!isValidRequestBody(data))
       return res
         .status(400)
         .send({ status: false, message: "please give some data" });
 
-    if (fname && !isValidName(fname))
+    if (req.files.length) {
+      let files = req.files;
+      let uploadedImage = await aws.uploadFile(files[0]);
+      data.profileImage = uploadedImage;
+    }
+
+    let updateQueries = {};
+
+if(fname){ 
+    if (!isValidName(fname))
       return res
         .status(400)
         .send({ status: false, message: "fname is invalid" });
+    updateQueries['fname']=fname}
 
-    if (fname && !isValidName(lname))
+if(lname){    
+    if (!isValidName(lname))
       return res
         .status(400)
         .send({ status: false, message: "lname is invalid" });
+  updateQueries['lnmae']=lname}
 
-    if (email && !isValidEmail(email))
+ if(email) {
+    if (!isValidEmail(email))
       return res
         .status(400)
         .send({ status: false, message: "email is invalid" });
+    updateQueries['email']=email}
 
     let emailExist = await userModel.findOne({ email: email });
     if (emailExist)
@@ -292,23 +325,25 @@ const updateUser = async function (req, res) {
         message: "user with this email already exists",
       });
 
-    if (phone && !isValidPhone(phone))
+if(phone){      
+    if (!isValidPhone(phone))
       return res
         .status(400)
         .send({ status: false, message: "phone is invalid" });
+  updateQueries['phone'] = phone}
 
     let phoneExist = await userModel.findOne({ phone: phone });
-    // console.log(phoneExist)
     if (phoneExist)
       return res.status(400).send({
         status: false,
         message: "user with this phone number already exists",
       });
 
+if(password){      
     if (password && !isValidPassword(password))
       return res
         .status(400)
-        .send({ status: false, message: "password is invalid" });
+        .send({ status: false, message: "password is invalid" });}
 
     if (address) {
       let street = address.shipping.street;
@@ -318,45 +353,68 @@ const updateUser = async function (req, res) {
       let bCity = address.billing.City;
       let bPin = address.billing.pincode;
 
-      if (street && !isValidstreet(street))
-        return res
-          .status(400)
-          .send({ status: false, message: "In shipping, street is invalid" });
+      if (street) {
+        if (!isValidstreet(street))
+          return res
+            .status(400)
+            .send({ status: false, message: "In shipping, street is invalid" });
+        updateQueries["address.shipping.street"] = shippingStreet;
+      }
+      if (city) {
+        if (!isValidstreet(city))
+          return res
+            .status(400)
+            .send({ status: false, message: "In shipping, city is invalid" });
+        updateQueries["address.shipping.city"] = city;
+      }
+      if (pin) {
+        if (!isValidPincode(pin))
+          return res.status(400).send({
+            status: false,
+            message: "In shipping, pincode is invalid",
+          });
+        updateQueries["address.shipping.pincode"] = pin;
+      }
 
-      if (!isValidstreet(city && !city))
-        return res
-          .status(400)
-          .send({ status: false, message: "In shipping, city is invalid" });
+      if (bStreet) {
+        if (bStreet && !isValidstreet(bStreet))
+          return res
+            .status(400)
+            .send({ status: false, message: "In billing, street is invalid" });
+        updateQueries["address.billing.street"] = bStreet;
+      }
 
-      if (pin && !isValidPincode(pin))
-        return res
-          .status(400)
-          .send({ status: false, message: "In shipping, pincode is invalid" });
+      if (bCity) {
+        if (bCity && !isValidstreet(bCity))
+          return res
+            .status(400)
+            .send({ status: false, message: "In billing, city is invalid" });
+        updateQueries["address.billing.City"] = bCity;
+      }
 
-      if (bStreet && !isValidstreet(bStreet))
-        return res
-          .status(400)
-          .send({ status: false, message: "In billing, street is invalid" });
-
-      if (bCity && !isValidstreet(bCity))
-        return res
-          .status(400)
-          .send({ status: false, message: "In billing, city is invalid" });
-
-      if (bPin && !isValidPincode(bPin))
-        return res
-          .status(400)
-          .send({ status: false, message: "In billing, pincode is invalid" });
+      if (bPin) {
+        if (bPin && !isValidPincode(bPin))
+          return res
+            .status(400)
+            .send({ status: false, message: "In billing, pincode is invalid" });
+        updateQueries["address.billing.pincode"] = bPin;
+      }
     }
-    console.log(data);
-    let updateData = await userModel.findOneAndUpdate({ _id: userId }, data, {
-      new: true,
-    });
-    console.log(updateData);
+
+    console.log(updateQueries);
+    let updatedData = await userModel.findOneAndUpdate(
+      { _id: userId },
+      updateQueries,
+      {
+        new: true,
+      }
+    );
+
+    console.log(updatedData);
     return res.status(200).send({
       status: true,
       message: "User profile details",
-      data: updateData,
+      data: updatedData,
     });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
