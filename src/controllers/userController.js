@@ -126,7 +126,7 @@ const createUser = async function (req, res) {
           });
       }
     }
-    
+
     if (address.billing) {
       if (!address.billing.street)
         return res
@@ -178,57 +178,61 @@ const createUser = async function (req, res) {
 
 //===================================LOGIN==========================================
 const userLogin = async function (req, res) {
-  let data = req.body;
-  let { email, password } = data;
+  try {
+    let data = req.body;
+    let { email, password } = data;
 
-  if (Object.keys(data).length == 0)
-    return res
-      .status(400)
-      .send({ status: false, message: "Please Enter data" });
+    if (Object.keys(data).length == 0)
+      return res
+        .status(400)
+        .send({ status: false, message: "Please Enter data" });
 
-  if (!email)
-    return res
-      .status(400)
-      .send({ status: false, message: "Please enter email" });
-  if (!isValidEmail(email))
-    return res
-      .status(400)
-      .send({ status: false, message: "Please enter valid email" });
+    if (!email)
+      return res
+        .status(400)
+        .send({ status: false, message: "Please enter email" });
+    if (!isValidEmail(email))
+      return res
+        .status(400)
+        .send({ status: false, message: "Please enter valid email" });
 
-  if (!password)
-    return res
-      .status(400)
-      .send({ status: false, message: "Please enter password" });
+    if (!password)
+      return res
+        .status(400)
+        .send({ status: false, message: "Please enter password" });
 
-  const Login = await userModel.findOne({ email });
-  if (!Login)
-    return res
-      .status(400)
-      .send({ status: false, message: "Not a register email Id" });
+    const Login = await userModel.findOne({ email });
+    if (!Login)
+      return res
+        .status(400)
+        .send({ status: false, message: "Not a register email Id" });
 
-  //----------[Password Verification]
-  let decodePwd = await bcrypt.compare(password, Login.password);
-  if (!decodePwd)
-    return res
-      .status(400)
-      .send({ status: false, message: "Password not match" });
+    //----------[Password Verification]
+    let decodePwd = await bcrypt.compare(password, Login.password);
+    if (!decodePwd)
+      return res
+        .status(400)
+        .send({ status: false, message: "Password not match" });
 
-  //----------[JWT token generate]
-  let token = jwt.sign(
-    {
-      userId: Login._id.toString(),
-    },
-    "GroupNumber39",
-    { expiresIn: "50d" }
-  );
+    //----------[JWT token generate]
+    let token = jwt.sign(
+      {
+        userId: Login._id.toString(),
+      },
+      "GroupNumber39",
+      { expiresIn: "50d" }
+    );
 
-  res.setHeader("x-api-key", token);
+    res.setHeader("x-api-key", token);
 
-  return res.status(200).send({
-    status: true,
-    message: "User login successfull",
-    data: { userId: Login._id, token: token },
-  });
+    return res.status(200).send({
+      status: true,
+      message: "User login successfull",
+      data: { userId: Login._id, token: token },
+    });
+  } catch (err) {
+    return res.status(500).send({ status: false, message: err.message });
+  }
 };
 
 //=================================GET PROFILE ====================================================================
@@ -260,8 +264,7 @@ const updateUser = async function (req, res) {
   try {
     let userId = req.params.userId;
     let data = req.body;
-    const { fname, lname, email, phone, password, address } =
-      data;
+    const { fname, lname, email, phone, password, address } = data;
 
     if (!isValidObjectId(userId)) {
       return res.status(400).send({
