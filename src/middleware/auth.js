@@ -17,7 +17,9 @@ const mongoose = require('mongoose')
 
 const authentication = async (req, res, next) => {
   try {
-    let token = req.headers["x-api-key"] || req.headers["X-API-KEY"];
+    let token = req.headers.authorization.split(" ")[1]
+
+    // console.log(token)
     if (!token)
       return res
         .status(400)
@@ -39,6 +41,17 @@ const authentication = async (req, res, next) => {
   }
 };
 
+//=========================AUTHORIZATION FOR USER UDPATE===============================
 
-
-module.exports = { authentication }
+const  isUserAuthorised = async(req, res, next) =>{
+    let userId = req.params.userId
+    let loginUserId = req.headers.userId;
+    if (loginUserId !== userId) {
+      return res
+        .status(403)
+        .send({ status: false, message: "You are not authorised" });
+    }
+    next()
+}
+//-------------------------------------------------------------------------------------
+module.exports = { authentication, isUserAuthorised }

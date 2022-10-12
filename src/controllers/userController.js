@@ -280,14 +280,6 @@ const updateUser = async function (req, res) {
         .send({ status: false, message: "User does not exist" });
     }
 
-    //AUTHORIZATION
-    // let loginUserId = req.headers.userId;
-    // if (loginUserId !== userId) {
-    //   return res
-    //     .status(403)
-    //     .send({ status: false, message: "You are not authorised" });
-    // }
-
     if (!isValidRequestBody(data))
       return res
         .status(400)
@@ -412,7 +404,7 @@ const updateUser = async function (req, res) {
       }
     }
 
-    console.log(updateQueries);
+    // console.log(updateQueries);
     let updatedData = await userModel.findOneAndUpdate(
       { _id: userId },
       updateQueries,
