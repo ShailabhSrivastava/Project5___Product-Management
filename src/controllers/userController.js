@@ -266,19 +266,19 @@ const updateUser = async function (req, res) {
     let data = req.body;
     const { fname, lname, email, phone, password, address } = data;
 
-    if (!isValidObjectId(userId)) {
-      return res.status(400).send({
-        status: false,
-        message: "Please enter valid Object Params Id",
-      });
-    }
+    // if (!isValidObjectId(userId)) {
+    //   return res.status(400).send({
+    //     status: false,
+    //     message: "Please enter valid Object Params Id",
+    //   });
+    // }
 
-    let user = await userModel.findById(userId);
-    if (!user) {
-      return res
-        .status(400)
-        .send({ status: false, message: "User does not exist" });
-    }
+    // let user = await userModel.findById(userId);
+    // if (!user) {
+    //   return res
+    //     .status(400)
+    //     .send({ status: false, message: "User does not exist" });
+    // }
 
     if (!isValidRequestBody(data))
       return res
