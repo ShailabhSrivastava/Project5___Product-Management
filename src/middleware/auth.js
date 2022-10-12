@@ -23,7 +23,7 @@ const authentication = async (req, res, next) => {
         .status(400)
         .send({ status: false, msg: "token must be present" });
 
-    jwt.verify(token, "i'm as calm as the sea", (err, decodedToken) => {
+    jwt.verify(token, "As calm as the sea", (err, decodedToken) => {
       if (err) {
         let message =
           err.message === "jwt expired"

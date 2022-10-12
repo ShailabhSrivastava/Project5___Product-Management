@@ -219,7 +219,7 @@ const userLogin = async function (req, res) {
       {
         userId: Login._id.toString(),
       },
-      "GroupNumber39",
+      "As calm as the sea",
       { expiresIn: "50d" }
     );
 
@@ -277,29 +277,29 @@ const updateUser = async function (req, res) {
     if (!user) {
       return res
         .status(400)
-        .send({ status: false, message: "This user is not found" });
+        .send({ status: false, message: "User does not exist" });
     }
 
     //AUTHORIZATION
-    let tokenUserId = req.userId;
-    if (tokenUserId !== userId) {
-      return res
-        .status(403)
-        .send({ status: false, message: "User does not exist" });
-    }
+    // let loginUserId = req.headers.userId;
+    // if (loginUserId !== userId) {
+    //   return res
+    //     .status(403)
+    //     .send({ status: false, message: "You are not authorised" });
+    // }
 
     if (!isValidRequestBody(data))
       return res
         .status(400)
         .send({ status: false, message: "please give some data" });
 
+    let updateQueries = {};
+
     if (req.files.length) {
       let files = req.files;
-      let uploadedImage = await aws.uploadFile(files[0]);
-      data.profileImage = uploadedImage;
+      let uploadedImage = await uploadFile(files[0]);
+      updateQueries["profileImage"] = uploadedImage;
     }
-
-    let updateQueries = {};
 
     if (fname) {
       if (!isValidName(fname))
@@ -355,63 +355,60 @@ const updateUser = async function (req, res) {
 
       //Saving password in encrypted format
       let salt = await bcrypt.genSalt(10);
-      data.password = await bcrypt.hash(data.password, salt);
-      updateQueries["password"] = password;
+      updateQueries["password"] = await bcrypt.hash(data.password, salt);
     }
 
-    if (address) {
-      let street = address.shipping.street;
-      let city = address.shipping.city;
-      let pin = address.shipping.pincode;
-      let bStreet = address.billing.street;
-      let bCity = address.billing.City;
-      let bPin = address.billing.pincode;
-
-      if (street) {
-        if (!isValidstreet(street))
-          return res
-            .status(400)
-            .send({ status: false, message: "In shipping, street is invalid" });
-        updateQueries["address.shipping.street"] = shippingStreet;
+    if (address.shipping) {
+      if (address.shipping.street) {
+        if (!isValidstreet(address.shipping.street))
+          return res.status(400).send({
+            status: false,
+            message: "In shipping, street is invalid",
+          });
+        updateQueries["address.shipping.street"] = address.shipping.street;
       }
-      if (city) {
-        if (!isValidstreet(city))
+      if (address.shipping.city) {
+        if (!isValidstreet(address.shipping.city))
           return res
             .status(400)
             .send({ status: false, message: "In shipping, city is invalid" });
-        updateQueries["address.shipping.city"] = city;
+        updateQueries["address.shipping.city"] = address.shipping.city;
       }
-      if (pin) {
-        if (!isValidPincode(pin))
+
+      if (address.shipping.pincode) {
+        if (!isValidPincode(address.shipping.pincode))
           return res.status(400).send({
             status: false,
             message: "In shipping, pincode is invalid",
           });
-        updateQueries["address.shipping.pincode"] = pin;
+        updateQueries["address.shipping.pincode"] = address.shipping.pincode;
       }
+    }
 
-      if (bStreet) {
-        if (bStreet && !isValidstreet(bStreet))
+    if (address.billing) {
+      if (address.billing.street) {
+        if (!isValidstreet(address.billing.street))
           return res
             .status(400)
             .send({ status: false, message: "In billing, street is invalid" });
-        updateQueries["address.billing.street"] = bStreet;
+        updateQueries["address.billing.street"] = address.billing.street;
       }
 
-      if (bCity) {
-        if (bCity && !isValidstreet(bCity))
+      if (address.billing.city) {
+        if (!isValidstreet(address.billing.city))
           return res
             .status(400)
             .send({ status: false, message: "In billing, city is invalid" });
-        updateQueries["address.billing.City"] = bCity;
+        updateQueries["address.billing.city"] = address.billing.city;
       }
 
-      if (bPin) {
-        if (bPin && !isValidPincode(bPin))
-          return res
-            .status(400)
-            .send({ status: false, message: "In billing, pincode is invalid" });
-        updateQueries["address.billing.pincode"] = bPin;
+      if (address.billing.pincode) {
+        if (!isValidPincode(address.billing.pincode))
+          return res.status(400).send({
+            status: false,
+            message: "In billing, pincode is invalid",
+          });
+        updateQueries["address.billing.pincode"] = address.billing.pincode;
       }
     }
 
@@ -424,7 +421,6 @@ const updateUser = async function (req, res) {
       }
     );
 
-    console.log(updatedData);
     return res.status(200).send({
       status: true,
       message: "User profile details",
