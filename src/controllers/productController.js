@@ -1,4 +1,4 @@
-const productModel = require("../model/productModel"); //requiring model
+const productModel = require("../models/productModel"); //requiring model
 //requiring packages
 const { uploadFile } = require("../aws/aws");
 const aws1 = require("../aws/aws");
@@ -78,29 +78,29 @@ const createProducts = async (req, res) => {
     }
 
     //currencyId validation
-    if (!isValid(currencyId)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Provide the CurrencyId " });
-    }
-    if (currencyId != "INR") {
-      return res
-        .status(400)
-        .send({ status: false, message: "CurrencyId should be in INR" });
-    }
+    // if (!isValid(currencyId)) {
+    //   return res
+    //     .status(400)
+    //     .send({ status: false, message: "Provide the CurrencyId " });
+    // }
+    // if (currencyId != "INR") {
+    //   return res
+    //     .status(400)
+    //     .send({ status: false, message: "CurrencyId should be in INR" });
+    // }
 
     //currencyFormat validation
-    if (!currencyFormat) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Please Enter Currency Symbol" });
-    }
-    if (currencyFormat != "₹") {
-      return res.status(400).send({
-        status: false,
-        message: "Currency Symbol should be only in '₹'",
-      });
-    }
+    // if (!currencyFormat) {
+    //   return res
+    //     .status(400)
+    //     .send({ status: false, message: "Please Enter Currency Symbol" });
+    // }
+    // if (currencyFormat != "₹") {
+    //   return res.status(400).send({
+    //     status: false,
+    //     message: "Currency Symbol should be only in '₹'",
+    //   });
+    // }
 
     //isFreeShipping validation
     if (isFreeShipping != null) {
