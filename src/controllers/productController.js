@@ -143,19 +143,22 @@ const createProducts = async (req, res) => {
         .send({ status: false, message: "Please Enter Size of Product" });
     }
 
-    let sizeArr = availableSizes.replace(/\s+/g, "").split(",").map(String);
-    let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
-    let flag;
-    for (let i = 0; i < sizeArr.length; i++) {
-      flag = arr.includes(sizeArr[i]);
-    }
-    if (flag == false) {
-      return res.status(400).send({
-        status: false,
-        data: "Enter a Valid Size, Like 'XS or S or M or X or L or XL or XXL'",
-      });
-    }
-    data["availableSizes"] = sizeArr;
+    // let sizeArr = availableSizes.replace(/\s+/g, "").split(",").map(String);
+
+    //unique sizeArr - do this change
+let sizeArr = availableSizes.replace(/\s+/g, "").split(",").map(String);
+let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+let flag;
+for (let i = 0; i < sizeArr.length; i++) {
+  flag = arr.includes(sizeArr[i]);
+}
+if (flag == false) {
+  return res.status(400).send({
+    status: false,
+    data: "Enter a Valid Size, Like 'XS or S or M or X or L or XL or XXL'",
+  });
+}
+data["availableSizes"] = sizeArr;
 
     //installments validation
     if (installments) {
@@ -199,7 +202,7 @@ const createProducts = async (req, res) => {
 const updateProducts = async (req, res) => {
   try {
     let data = req.body;
-    let productId = req.params.productId
+    let productId = req.params.productId;
     let file = req.files;
 
     let {
@@ -329,7 +332,7 @@ const updateProducts = async (req, res) => {
           message: "installments Shoud be In Valid  Number only",
         });
       }
-    updateProduct['installments'] = installments
+      updateProduct["installments"] = installments;
     }
 
     //style validation
@@ -339,12 +342,12 @@ const updateProducts = async (req, res) => {
           .status(400)
           .send({ status: false, message: "Provide the style " });
       }
-    updateProduct['style'] = style
+      updateProduct["style"] = style;
     }
 
     //after checking all the validation, than creating the product data
     const createdProduct = await productModel.findOneAndUpdate(
-      { _id:productId },
+      { _id: productId },
       updateProduct,
       {
         new: true,

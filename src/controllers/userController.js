@@ -191,6 +191,7 @@ const userLogin = async function (req, res) {
       return res
         .status(400)
         .send({ status: false, message: "Please enter email" });
+
     if (!isValidEmail(email))
       return res
         .status(400)
@@ -224,6 +225,7 @@ const userLogin = async function (req, res) {
     );
 
     res.setHeader("x-api-key", token);
+    //no need for this
 
     return res.status(200).send({
       status: true,
@@ -340,7 +342,7 @@ const updateUser = async function (req, res) {
     }
 
     if (password) {
-      if (password && !isValidPassword(password))
+      if (!isValidPassword(password))
         return res
           .status(400)
           .send({ status: false, message: "password is invalid" });

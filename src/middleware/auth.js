@@ -17,13 +17,14 @@ const mongoose = require('mongoose')
 
 const authentication = async (req, res, next) => {
   try {
-    let token = req.headers.authorization.split(" ")[1]
+    let token = req.headers.authorization
 
     // console.log(token)
     if (!token)
       return res
         .status(400)
         .send({ status: false, msg: "token must be present" });
+    token = req.headers.authorization.split(" ")[1];
 
     jwt.verify(token, "As calm as the sea", (err, decodedToken) => {
       if (err) {
