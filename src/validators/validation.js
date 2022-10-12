@@ -46,4 +46,20 @@ const isValid = function (value) {
   return true;
 };
 
-module.exports={isValid, isValidEmail,isValidPassword,isValidName,isValidPhone,isValidPincode,isValidstreet,isValidRequestBody,isValidObjectId}
+const isValidImg = (img) => {
+  const reg = /image\/png|image\/jpeg|image\/jpg/;
+  return reg.test(img);
+};
+
+module.exports = {
+  isValid,
+  isValidEmail,
+  isValidPassword,
+  isValidName,
+  isValidPhone,
+  isValidPincode,
+  isValidstreet,
+  isValidRequestBody,
+  isValidObjectId,
+  isValidImg,
+};
