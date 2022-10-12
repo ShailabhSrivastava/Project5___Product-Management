@@ -350,7 +350,8 @@ const updateUser = async function (req, res) {
       updateQueries["password"] = await bcrypt.hash(data.password, salt);
     }
 
-    if (address.shipping) {
+    if(address){
+        if (address.shipping) {
       if (address.shipping.street) {
         if (!isValidstreet(address.shipping.street))
           return res.status(400).send({
@@ -403,7 +404,7 @@ const updateUser = async function (req, res) {
         updateQueries["address.billing.pincode"] = address.billing.pincode;
       }
     }
-
+}
     // console.log(updateQueries);
     let updatedData = await userModel.findOneAndUpdate(
       { _id: userId },
