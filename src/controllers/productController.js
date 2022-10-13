@@ -1,7 +1,6 @@
 const productModel = require("../models/productModel"); //requiring model
 //requiring packages
 const { uploadFile } = require("../aws/aws");
-const aws1 = require("../aws/aws");
 //improting validation file and destrucing all the validation as per the project requirement
 const {
   isValidRequestBody,
@@ -129,7 +128,7 @@ const createProducts = async (req, res) => {
       }
 
       //store the profile image in aws and creating profile image url via "aws package"
-      let url = await aws1.uploadFile(file[0]);
+      let url = await uploadFile(file[0]);
       data["productImage"] = url;
     } else {
       return res
@@ -265,21 +264,32 @@ const getByID = async function(req,res){
 
 const updateProducts = async (req, res) => {
   try {
-    let data = req.body;
     let productId = req.params.productId;
+    let data = req.body;
     let file = req.files;
 
     let {
       title,
       description,
-      price,
       currencyId,
       currencyFormat,
-      isFreeShipping,
       availableSizes,
+      price,
+      isFreeShipping,
       style,
       installments,
     } = data;
+
+    let findProduct = await productModel.findOne({
+      _id: productId,
+      isDeleted: false,
+    });
+
+    if (!findProduct)
+      return res.status(400).send({
+        status: false,
+        message: "Product not found",
+      });
 
     if (!isValidRequestBody(data)) {
       return res.status(400).send({
@@ -322,22 +332,21 @@ const updateProducts = async (req, res) => {
       updateProduct["price"] = price;
     }
 
-    // if (currencyId) {
-    //   if (currencyId != "INR")
-    //     return res
-    //       .status(400)
-    //       .send({ status: false, message: "CurrencyId should be in INR" });
-    // updateProduct['currencyId'] = currencyId
-    // }
+    if (currencyId) {
+      return res.status(400).send({
+        status: false,
+        message: "You cannot change currencyId, By default it is set to INR",
+      });
+    }
 
-    // if (currencyFormat != "₹") {
-    //   return res.status(400).send({
-    //     status: false,
-    //     message: "Currency Symbol should be only in '₹'s",
-    //   });
-    // }
+    if (currencyFormat) {
+      return res.status(400).send({
+        status: false,
+        message:
+          "You cannot change currencyFormat, By default it is set to INR",
+      });
+    }
 
-    //isFreeShipping validation
     if (isFreeShipping) {
       if (
         !(
@@ -350,38 +359,41 @@ const updateProducts = async (req, res) => {
           message: "Please Provide only Boolean Value",
         });
       }
-      data["isFreeShipping"] = isFreeShipping.toLowerCase();
+      updateProduct["isFreeShipping"] = isFreeShipping.toLowerCase();
     }
 
-    if (file > 0) {
+    if (file && file.length > 0) {
       if (!isValidImg(file[0].mimetype)) {
         return res.status(400).send({
           status: false,
           message: "Image Should be of JPEG/ JPG/ PNG",
         });
       }
-      let url = await aws1.uploadFile(file[0]);
-      data["productImage"] = url;
+      let url = await uploadFile(file[0]);
+      updateProduct["productImage"] = url;
     }
-    // if (availableSizes) {
-    //   return res
-    //     .status(400)
-    //     .send({ status: false, message: "Please Enter Size of Product" });
-    // }
 
-    // let uniqueSize = availableSizes.replace(/\s+/g, "").split(",").map(String);
-    // let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
-    // let flag;
-    // for (let i = 0; i < uniqueSize.length; i++) {
-    //   flag = arr.includes(uniqueSize[i]);
-    // }
-    // if (flag == false) {
-    //   return res.status(400).send({
-    //     status: false,
-    //     data: "Enter a Valid Size, Like 'XS or S or M or X or L or XL or XXL'",
-    //   });
-    //   updateProduct["availableSizes"] = uniqueSize;
-    // }
+    if (availableSizes) {
+      let oldSizes = findProduct.availableSizes;
+      let sizeArr = availableSizes.replace(/\s+/g, "").split(",").map(String);
+      sizeArr = sizeArr.concat(oldSizes);
+
+      let uniqueSize = sizeArr.filter(function (item, i, ar) {
+        return ar.indexOf(item) === i;
+      });
+
+      let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+
+      for (let i = 0; i < uniqueSize.length; i++) {
+        if (!arr.includes(uniqueSize[i]))
+          return res.status(400).send({
+            status: false,
+            data: "Enter a Valid Size, Like 'XS or S or M or X or L or XL or XXL'",
+          });
+      }
+      console.log(oldSizes);
+      updateProduct["availableSizes"] = uniqueSize
+    }
 
     if (installments) {
       if (!/^[0-9]*$/.test(installments)) {
@@ -390,7 +402,7 @@ const updateProducts = async (req, res) => {
           message: "Installments value Should be only number",
         });
       }
-      if (installments < 0) {
+      if (installments <= 0) {
         return res.status(400).send({
           status: false,
           message: "installments Shoud be In Valid  Number only",
@@ -400,17 +412,17 @@ const updateProducts = async (req, res) => {
     }
 
     //style validation
-    if (style != null) {
-      if (!isValid(style)) {
-        return res
-          .status(400)
-          .send({ status: false, message: "Provide the style " });
-      }
-      updateProduct["style"] = style;
-    }
+    // if (style) {
+    //   if (!isValid(style)) {
+    //     return res
+    //       .status(400)
+    //       .send({ status: false, message: "Invalid Style" });
+    //   }
+    //   updateProduct["style"] = style;
+    // }
 
     //after checking all the validation, than creating the product data
-    const createdProduct = await productModel.findOneAndUpdate(
+    const updatedProduct = await productModel.findOneAndUpdate(
       { _id: productId },
       updateProduct,
       {
@@ -419,8 +431,8 @@ const updateProducts = async (req, res) => {
     );
     return res.status(201).send({
       status: true,
-      message: "Product is Created Successfully",
-      data: createdProduct,
+      message: "Product is updated Successfully",
+      data: updatedProduct,
     });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
