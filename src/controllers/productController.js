@@ -146,19 +146,17 @@ const createProducts = async (req, res) => {
     // let sizeArr = availableSizes.replace(/\s+/g, "").split(",").map(String);
 
     //unique sizeArr - do this change
-let sizeArr = availableSizes.replace(/\s+/g, "").split(",").map(String);
-let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
-let flag;
-for (let i = 0; i < sizeArr.length; i++) {
-  flag = arr.includes(sizeArr[i]);
-}
-if (flag == false) {
-  return res.status(400).send({
-    status: false,
-    data: "Enter a Valid Size, Like 'XS or S or M or X or L or XL or XXL'",
-  });
-}
-data["availableSizes"] = sizeArr;
+    let sizeArr = availableSizes.replace(/\s+/g, "").split(",").map(String);
+    let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+
+    for (let i = 0; i < sizeArr.length; i++) {
+      if (!arr.includes(sizeArr[i]))
+        return res.status(400).send({
+          status: false,
+          data: "Enter a Valid Size, Like 'XS or S or M or X or L or XL or XXL'",
+        });
+    }
+    data["availableSizes"] = sizeArr;
 
     //installments validation
     if (installments) {
