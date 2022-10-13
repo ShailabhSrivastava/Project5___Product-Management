@@ -10,6 +10,7 @@ const {
   isValidImg,
   isValidName,
 } = require("../validators/validation");
+const mongoose = require("mongoose")
 
 const createProducts = async (req, res) => {
   try {
@@ -205,7 +206,7 @@ const getProducts = async function (req, res) {
     let data = req.query
     let { size, name, priceLessThan } = data//Destructuring
 
-    if (!data) return res.status(400).send({ status: false, message: "please give some data to get products list" })
+    // if (!data) return res.status(400).send({ status: false, message: "please give some data to get products list" })
 
     let ndata = {}
 
@@ -242,6 +243,20 @@ const getProducts = async function (req, res) {
     return res.status(200).send({ status: true, data: productDetail })
 
   } catch (err) {
+    return res.status(500).send({ status: false, message: err.message })
+  }
+}
+
+//=====================================GET PRODUCT========================================
+
+const getByID = async function(req,res){
+  try{
+    const productID = req.params.productId
+    if (!mongoose.isValidObjectId(productID)) return res.status(400).send({status:false, message: "Please enter valid PRODUCT Id in params"})
+    const checkData = await productModel.findOne({_id: productID, isDeleted: false})
+    if (!checkData) return res.status(400).send({status:false, message: "Product not found"})
+    return res.status(200).send({status:true, message:"success",data: checkData})
+  } catch (err){
     return res.status(500).send({ status: false, message: err.message })
   }
 }
@@ -412,4 +427,4 @@ const updateProducts = async (req, res) => {
   }
 };
 
-module.exports = { createProducts, getProducts, updateProducts };
+module.exports = { createProducts, getProducts, updateProducts, getByID};

@@ -14,6 +14,7 @@ router.put("/user/:userId/profile", authentication,isUserAuthorised, userControl
 //=============================================PRODUCT APIS================================================
 router.post("/products",productController. createProducts )
 router.get("/products",productController.getProducts)
+router.get("/products/:productId", productController.getByID)
 router.put("/products/:productId",productController.updateProducts);
 
 
