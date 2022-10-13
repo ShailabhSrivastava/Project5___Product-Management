@@ -199,6 +199,52 @@ const createProducts = async (req, res) => {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+//====================================get product============================================
+const getProducts = async function (req, res) {
+  try {
+    let data = req.query
+    let { size, name, priceLessThan } = data//Destructuring
+
+    if (!data) return res.status(400).send({ status: false, message: "please give some data to get products list" })
+
+    let ndata = {}
+
+    if (size) {
+
+     let sizeArr = size.replace(/\s+/g, "").split(",").map(String);
+
+    var uniqueSize = sizeArr.filter(function (item, i, ar) {
+      return ar.indexOf(item) === i;
+    });
+
+    let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+
+    for (let i = 0; i < uniqueSize.length; i++) {
+      if (!arr.includes(uniqueSize[i]))
+        return res.status(400).send({
+          status: false,
+          data: "Enter a Valid Size, Like 'XS or S or M or X or L or XL or XXL'",
+        });
+    }
+      ndata.availableSizes = size
+    }
+    if (name) {
+      ndata.title = { $regex: name, $options: 'i' }
+    }
+
+    if (priceLessThan) {
+      ndata.price = { $lt: Number(priceLessThan) }
+    }
+
+    let productDetail = await productModel.find({ isDeleted: false, ...ndata }).sort({ price: 1 })
+    if (productDetail.length == 0) return res.status(404).send({ status: false, message: "No product found" })
+
+    return res.status(200).send({ status: true, data: productDetail })
+
+  } catch (err) {
+    return res.status(500).send({ status: false, message: err.message })
+  }
+}
 
 //=====================================UPDATE PRODUCT========================================
 
@@ -366,4 +412,4 @@ const updateProducts = async (req, res) => {
   }
 };
 
-module.exports = { createProducts, updateProducts };
+module.exports = { createProducts, getProducts, updateProducts };

@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
+const productController = require("../controllers/productController");
 const { authentication, isUserAuthorised } = require("../middleware/auth");
-const {createProducts, updateProducts} = require("../controllers/productController")
+
 
 //==============================================USER APIS=================================================
 router.post("/register", userController.createUser);
@@ -11,8 +12,9 @@ router.get("/user/:userId/profile", authentication,userController.getProfile);
 router.put("/user/:userId/profile", authentication,isUserAuthorised, userController.updateUser);
 
 //=============================================PRODUCT APIS================================================
-router.post("/products", createProducts )
-router.put("/products/:productId",updateProducts);
+router.post("/products",productController. createProducts )
+router.get("/products",productController.getProducts)
+router.put("/products/:productId",productController.updateProducts);
 
 
 //===============================================
