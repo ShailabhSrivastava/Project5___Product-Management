@@ -143,20 +143,25 @@ const createProducts = async (req, res) => {
         .send({ status: false, message: "Please Enter Size of Product" });
     }
 
-    // let sizeArr = availableSizes.replace(/\s+/g, "").split(",").map(String);
+    // let uniqueSize = availableSizes.replace(/\s+/g, "").split(",").map(String);
 
-    //unique sizeArr - do this change
+    //unique uniqueSize - do this change
     let sizeArr = availableSizes.replace(/\s+/g, "").split(",").map(String);
+
+    var uniqueSize = sizeArr.filter(function (item, i, ar) {
+      return ar.indexOf(item) === i;
+    });
+
     let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
 
-    for (let i = 0; i < sizeArr.length; i++) {
-      if (!arr.includes(sizeArr[i]))
+    for (let i = 0; i < uniqueSize.length; i++) {
+      if (!arr.includes(uniqueSize[i]))
         return res.status(400).send({
           status: false,
           data: "Enter a Valid Size, Like 'XS or S or M or X or L or XL or XXL'",
         });
     }
-    data["availableSizes"] = sizeArr;
+    data["availableSizes"] = uniqueSize;
 
     //installments validation
     if (installments) {
@@ -303,18 +308,18 @@ const updateProducts = async (req, res) => {
     //     .send({ status: false, message: "Please Enter Size of Product" });
     // }
 
-    // let sizeArr = availableSizes.replace(/\s+/g, "").split(",").map(String);
+    // let uniqueSize = availableSizes.replace(/\s+/g, "").split(",").map(String);
     // let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
     // let flag;
-    // for (let i = 0; i < sizeArr.length; i++) {
-    //   flag = arr.includes(sizeArr[i]);
+    // for (let i = 0; i < uniqueSize.length; i++) {
+    //   flag = arr.includes(uniqueSize[i]);
     // }
     // if (flag == false) {
     //   return res.status(400).send({
     //     status: false,
     //     data: "Enter a Valid Size, Like 'XS or S or M or X or L or XL or XXL'",
     //   });
-    //   updateProduct["availableSizes"] = sizeArr;
+    //   updateProduct["availableSizes"] = uniqueSize;
     // }
 
     if (installments) {
