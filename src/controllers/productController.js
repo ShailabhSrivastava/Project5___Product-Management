@@ -171,7 +171,7 @@ const getProducts = async function (req, res) {
     let ndata = {};
 
     if (size) {
-      let sizeArr = size.replace(/\s+/g, "").split(",").map(String);
+      let sizeArr = size.replace(/\s+/g, "").split(",")
 
       var uniqueSize = sizeArr.filter(function (item, i, ar) {
         return ar.indexOf(item) === i;
@@ -186,7 +186,7 @@ const getProducts = async function (req, res) {
             data: "Enter a Valid Size, Like 'XS or S or M or X or L or XL or XXL'",
           });
       }
-      ndata.availableSizes = size;
+      ndata.availableSizes = {$in:sizeArr}
     }
     if (name) {
       ndata.title = { $regex: name, $options: "i" };
@@ -411,4 +411,30 @@ const updateProducts = async (req, res) => {
   }
 };
 
-module.exports = { createProducts, getProducts, updateProducts, getByID };
+const deleteProductById = async (req, res) => {
+  try {
+    const productId = req.params.productId
+    if (!mongoose.isValidObjectId(productId)) return res.status(400).send({status:false, message: "Please enter valid PRODUCT Id in params"})
+
+    const findProduct = await productModel.findById(productId)
+    if (!findProduct) { return res.status(400).send({ status: false, message: `No product found by ${productId}` })
+    }
+
+    if (findProduct.isDeleted == true) {
+      return res.status(400).send({ status: false, message: `Product has been already deleted` })
+    }
+
+    const deletedProduct = await productModel.findOneAndUpdate(
+        { _id: productId },
+        { $set: { isDeleted: true, deletedAt: new Date() } },
+        { new: true }
+      )
+      // .select({ _id: 1, title: 1, isDeleted: 1, deletedAt: 1 });
+
+    res.status(200).send({ status: true, message: `product deleted successfully .`, data: deletedProduct });
+  } catch (err) {
+    res.status(500).send({ status: false, message: err.message });
+  }
+}
+
+module.exports = { createProducts, getProducts, updateProducts, getByID , deleteProductById };
