@@ -248,7 +248,7 @@ const userLogin = async function (req, res) {
       { expiresIn: "50d" }
     );
 
-    res.setHeader("x-api-key", token);
+    // res.setHeader("x-api-key", token);
     //no need for this
 
     return res.status(200).send({
@@ -290,7 +290,7 @@ const updateUser = async function (req, res) {
   try {
     let userId = req.params.userId;
     let data = req.body;
-    const { fname, lname, email, phone, password, address } = data;
+    const { fname, lname, email, phone, password,file, address } = data;
 
     // if (!isValidObjectId(userId)) {
     //   return res.status(400).send({
@@ -337,7 +337,7 @@ const updateUser = async function (req, res) {
         return res
           .status(400)
           .send({ status: false, message: "lname is invalid" });
-      updateQueries["lnmae"] = lname;
+      updateQueries["lname"] = lname;
     }
 
     if (email) {

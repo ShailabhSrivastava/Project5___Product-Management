@@ -96,11 +96,10 @@ const createProducts = async (req, res) => {
     }
 
     if (file && file.length > 0) {
-      console.log(file[0].mimetype);
-      if (!isValidImg(file[0].mimetype)) {
+      if (!isValidImg(file[0].originalname)) {
         return res.status(400).send({
           status: false,
-          message: "Image Should be of JPEG/ JPG/ PNG",
+          message: "Image Should be of JPEG/ JPG/ PNG/ JFIF/ GIF",
         });
       }
 
@@ -172,7 +171,6 @@ const getProducts = async function (req, res) {
 
     if (size) {
       let sizeArr = size.replace(/\s+/g, "").split(",");
-
       var uniqueSize = sizeArr.filter(function (item, i, ar) {
         return ar.indexOf(item) === i;
       });
@@ -256,6 +254,12 @@ const updateProducts = async (req, res) => {
       installments,
     } = data;
 
+    if (!isValidObjectId(productId))
+      return res.status(400).send({
+        status: false,
+        message: "Please enter valid PRODUCT Id in params",
+      });
+
     let findProduct = await productModel.findOne({
       _id: productId,
       isDeleted: false,
@@ -266,12 +270,6 @@ const updateProducts = async (req, res) => {
         status: false,
         message: "Product not found",
       });
-    if (!isValidRequestBody(data)) {
-      return res.status(400).send({
-        status: false,
-        message: "Provide the Product's Data",
-      });
-    }
 
     let updateProduct = {};
 
@@ -338,10 +336,10 @@ const updateProducts = async (req, res) => {
     }
 
     if (file && file.length > 0) {
-      if (!isValidImg(file[0].mimetype)) {
+      if (!isValidImg(file[0].originalname)) {
         return res.status(400).send({
           status: false,
-          message: "Image Should be of JPEG/ JPG/ PNG",
+          message: "Image Should be of JPEG/ JPG/ PNG /GIF/GFIF",
         });
       }
       let url = await uploadFile(file[0]);
@@ -392,8 +390,14 @@ const updateProducts = async (req, res) => {
       updateProduct["style"] = style;
     }
 
+    if (Object.keys(updateProduct).length == 0)
+      return res.status(400).send({
+        status: false,
+        message: "please give some queries to update",
+      });
+
     const updatedProduct = await productModel.findOneAndUpdate(
-      { _id: productId },
+      { _id: productId, isDeleted:false },
       updateProduct,
       {
         new: true,
