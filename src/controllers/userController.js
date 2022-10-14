@@ -299,12 +299,12 @@ const updateUser = async function (req, res) {
     //   });
     // }
 
-    // let user = await userModel.findById(userId);
-    // if (!user) {
-    //   return res
-    //     .status(400)
-    //     .send({ status: false, message: "User does not exist" });
-    // }
+    let user = await userModel.findById(userId);
+    if (!user) {
+      return res
+        .status(400)
+        .send({ status: false, message: "User does not exist" });
+    }
 
     if (!isValidRequestBody(data))
       return res
@@ -313,10 +313,15 @@ const updateUser = async function (req, res) {
 
     let updateQueries = {};
 
-    if (req.files.length) {
-      let files = req.files;
-      let uploadedImage = await uploadFile(files[0]);
-      updateQueries["profileImage"] = uploadedImage;
+    if (file && file.length > 0) {
+      if (!isValidImg(file[0].originalname)) {
+        return res.status(400).send({
+          status: false,
+          message: "Image Should be of JPEG/ JPG/ PNG",
+        });
+      }
+      let url = await uploadFile(file[0]);
+      data["profileImage"] = url;
     }
 
     if (fname) {
