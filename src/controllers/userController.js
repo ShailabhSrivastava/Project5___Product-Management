@@ -10,6 +10,7 @@ const {
   isValidPincode,
   isValidstreet,
   isValidRequestBody,
+  isValidImg
 } = require("../validators/validation");
 const jwt = require("jsonwebtoken");
 
@@ -18,6 +19,7 @@ const jwt = require("jsonwebtoken");
 const createUser = async function (req, res) {
   try {
     let data = req.body;
+    let file = req.files
     if (Object.keys(data).length == 0)
       return res
         .status(400)
@@ -59,13 +61,22 @@ const createUser = async function (req, res) {
       });
 
     //Uploading image to S3 bucket
-    let file = req.files;
-    if (file && file.length > 0) {
-      let uploadImage = await uploadFile(file[0]);
-      data.profileImage = uploadImage;
-    } else {
-      res.status(400).send({ msg: "No file found" });
-    }
+   if (file && file.length > 0) {
+    //  console.log(file[0].mimetype);
+     if (!isValidImg(file[0].mimetype)) {
+       return res.status(400).send({
+         status: false,
+         message: "Image Should be of JPEG/ JPG/ PNG",
+       });
+     }
+
+     let url = await uploadFile(file[0]);
+     data["productImage"] = url;
+   } else {
+     return res
+       .status(400)
+       .send({ status: false, message: "Image is a mandatory field" });
+   }
 
     if (!phone)
       return res
