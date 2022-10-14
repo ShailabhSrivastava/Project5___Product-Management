@@ -1,6 +1,5 @@
 const productModel = require("../models/productModel");
 const { uploadFile } = require("../aws/aws");
-const mongoose = require("mongoose");
 const {
   isValidRequestBody,
   isValid,
@@ -216,7 +215,7 @@ const getProducts = async function (req, res) {
 const getByID = async function (req, res) {
   try {
     const productID = req.params.productId;
-    if (!mongoose.isValidObjectId(productID))
+    if (!isValidObjectId(productID))
       return res.status(400).send({
         status: false,
         message: "Please enter valid PRODUCT Id in params",
@@ -417,7 +416,7 @@ const updateProducts = async (req, res) => {
 const deleteProductById = async (req, res) => {
   try {
     const productId = req.params.productId;
-    if (!mongoose.isValidObjectId(productId))
+    if (!isValidObjectId(productId))
       return res.status(400).send({
         status: false,
         message: "Please enter valid PRODUCT Id in params",

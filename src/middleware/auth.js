@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const mongoose = require('mongoose')
+const userModel = require("../models/userModel");
+const { isValidObjectId } = require("../validators/validation");
 
 // const authentication = async function (req, res, next) {
 //     try {
@@ -46,6 +47,12 @@ const authentication = async (req, res, next) => {
 
 const  isUserAuthorised = async(req, res, next) =>{
     let userId = req.params.userId
+
+    if(!isValidObjectId(userId))
+     return res
+       .status(403)
+       .send({ status: false, message: "Invalid UserId" });
+
     let loginUserId = req.headers.userId;
     if (loginUserId !== userId) {
       return res
