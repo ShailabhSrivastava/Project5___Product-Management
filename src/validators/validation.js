@@ -12,7 +12,7 @@ const isValidPassword = function (password) {
 }
 
 const isValidName = function(name) {
-    if (/^[a-zA-Z\. ]*$/.test(name)) return true
+    if (/^[a-zA-Z\.]*$/.test(name)) return true
    return false
 }
 
