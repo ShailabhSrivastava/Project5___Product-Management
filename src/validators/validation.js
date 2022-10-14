@@ -47,7 +47,7 @@ const isValid = function (value) {
 };
 
 const isValidImg = (img) => {
-  const reg = /image\/png|image\/jpeg|image\/jpg/;
+  const reg = /.+\.(?:(jpg|gif|png|jpeg|jfif))/;
   return reg.test(img);
 };
 

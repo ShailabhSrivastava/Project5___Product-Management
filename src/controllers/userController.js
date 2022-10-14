@@ -66,8 +66,8 @@ const createUser = async function (req, res) {
         .send({ status: false, message: "Image is a mandatory field" });
 
     if (file && file.length > 0) {
-      //  console.log(file[0].mimetype);
-      if (!isValidImg(file[0].mimetype)) {
+      //  console.log(file[0]);
+      if (!isValidImg(file[0].originalname)) {
         return res.status(400).send({
           status: false,
           message: "Image Should be of JPEG/ JPG/ PNG",
@@ -432,7 +432,7 @@ const updateUser = async function (req, res) {
         }
       }
     }
-    
+
     if (Object.keys(updateQueries).length == 0)
       return res.status(400).send({
         status: false,
