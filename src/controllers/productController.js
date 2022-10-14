@@ -266,7 +266,6 @@ const updateProducts = async (req, res) => {
         status: false,
         message: "Product not found",
       });
-
     if (!isValidRequestBody(data)) {
       return res.status(400).send({
         status: false,

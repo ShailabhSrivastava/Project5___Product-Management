@@ -432,7 +432,13 @@ const updateUser = async function (req, res) {
         }
       }
     }
-    // console.log(updateQueries);
+    
+    if (Object.keys(updateQueries).length == 0)
+      return res.status(400).send({
+        status: false,
+        message: "please give some queries to update",
+      });
+      
     let updatedData = await userModel.findOneAndUpdate(
       { _id: userId },
       updateQueries,
