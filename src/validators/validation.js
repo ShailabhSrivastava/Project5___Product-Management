@@ -27,7 +27,7 @@ const isValidPincode = function(pincode){
 }
 
 const isValidstreet = function(street){
-    if(/^[A-Za-z]{3,15}/.test(street))return true     
+    if(/^[0-9 A-Za-z]{3,15}/.test(street))return true     
     return false
 }
 
@@ -46,6 +46,11 @@ const isValid = function (value) {
   return true;
 };
 
+const isValidTitle = function(name) {
+  if (/^[a-zA-Z 0-9\.]*$/.test(name)) return true
+ return false
+}
+
 const isValidImg = (img) => {
   const reg = /.+\.(?:(jpg|gif|png|jpeg|jfif))/;
   return reg.test(img);
@@ -62,4 +67,5 @@ module.exports = {
   isValidRequestBody,
   isValidObjectId,
   isValidImg,
+  isValidTitle
 };

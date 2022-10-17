@@ -6,6 +6,7 @@ const {
   isValidObjectId,
   isValidImg,
   isValidName,
+  isValidTitle
 } = require("../validators/validation");
 
 const createProducts = async (req, res) => {
@@ -32,7 +33,7 @@ const createProducts = async (req, res) => {
       });
     }
 
-    if (!title || !isValid(title)) {
+    if (!title || !isValidTitle(title)) {
       return res.status(400).send({
         status: false,
         message: "Title is a mandatory field and format should be valid",
@@ -316,7 +317,7 @@ const updateProducts = async (req, res) => {
       return res.status(400).send({
         status: false,
         message:
-          "You cannot change currencyFormat, By default it is set to INR",
+          "You cannot change currencyFormat, By default it is set to ₹",
       });
     }
 
@@ -393,7 +394,7 @@ const updateProducts = async (req, res) => {
     if (Object.keys(updateProduct).length == 0)
       return res.status(400).send({
         status: false,
-        message: "please give some queries to update",
+        message: "please give some data to update",
       });
 
     const updatedProduct = await productModel.findOneAndUpdate(
@@ -443,7 +444,6 @@ const deleteProductById = async (req, res) => {
       { $set: { isDeleted: true, deletedAt: new Date() } },
       { new: true }
     );
-    // .select({ _id: 1, title: 1, isDeleted: 1, deletedAt: 1 });
 
     return res.status(200).send({
       status: true,

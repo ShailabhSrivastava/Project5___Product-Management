@@ -229,7 +229,7 @@ const userLogin = async function (req, res) {
     const Login = await userModel.findOne({ email });
     if (!Login)
       return res
-        .status(400)
+        .status(404)
         .send({ status: false, message: "Not a register email Id" });
 
     //----------[Password Verification]
@@ -274,7 +274,7 @@ const getProfile = async function (req, res) {
 
     const checkUser = await userModel.findById(userId);
     if (!checkUser)
-      return res.status(400).send({ status: false, message: "UserId invalid" });
+      return res.status(404).send({ status: false, message: "UserId not found" });
 
     return res
       .status(200)
