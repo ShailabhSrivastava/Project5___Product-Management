@@ -15,10 +15,9 @@ const { isValidObjectId } = require("../validators/validation");
 //     }
 // }
 
-
 const authentication = async (req, res, next) => {
   try {
-    let token = req.headers.authorization
+    let token = req.headers.authorization;
 
     // console.log(token)
     if (!token)
@@ -45,21 +44,25 @@ const authentication = async (req, res, next) => {
 
 //=========================AUTHORIZATION FOR USER UDPATE===============================
 
-const  isUserAuthorised = async(req, res, next) =>{
-    let userId = req.params.userId
+const isUserAuthorised = async (req, res, next) => {
+  let userId = req.params.userId;
 
-    if(!isValidObjectId(userId))
-     return res
-       .status(403)
-       .send({ status: false, message: "Invalid UserId" });
+  if (!isValidObjectId(userId))
+    return res.status(403).send({ status: false, message: "Invalid UserId" });
 
-    let loginUserId = req.headers.userId;
-    if (loginUserId !== userId) {
-      return res
-        .status(403)
-        .send({ status: false, message: "You are not authorised" });
-    }
-    next()
-}
+  let isUserPresent = await userModel.findById(userId);
+  if (!isUserPresent)
+    return res
+      .status(404)
+      .send({ status: false, message: "User does not exist" });
+
+  let loginUserId = req.headers.userId;
+  if (loginUserId !== userId) {
+    return res
+      .status(403)
+      .send({ status: false, message: "You are not authorised" });
+  }
+  next();
+};
 //-------------------------------------------------------------------------------------
-module.exports = { authentication, isUserAuthorised }
+module.exports = { authentication, isUserAuthorised };

@@ -20,7 +20,7 @@ router.put("/products/:productId",productController.updateProducts);
 router.delete("/products/:productId",productController.deleteProductById)
 
 
-router.post("/users/:userId/cart", authentication,isUserAuthorised, cartController.createCart)
+router.post("/users/:userId/cart",cartController.createCart)
 router.get("/users/:userId/cart", authentication,isUserAuthorised, cartController.getCart)
 router.delete("/users/:userId/cart", authentication,isUserAuthorised, cartController.deleteCart)
 
