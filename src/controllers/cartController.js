@@ -18,9 +18,9 @@ const createCart = async function (req, res) {
     if (!isValidRequestBody(data))
       return res
         .status(400)
-        .send({ status: false, message: "Please provide data" });
+        .send({ status: false, message: "Please provide all the required data" });
 
-    if (!isValidObjectId)
+    if (!isValidObjectId(productId))
       return res
         .status(400)
         .send({ status: false, message: "Not a valid productId" });
@@ -36,6 +36,22 @@ const createCart = async function (req, res) {
         .send({ status: false, message: "Product not found" });
 
     let cartAvaiable = await cartModel.findOne({ userId: userId });
+
+     if (cartId) {
+       if (!isValidObjectId(cartId))
+         return res
+           .status(400)
+           .send({ status: false, message: "Invalid cartId" });
+
+       if (cart._id.toString() != cartId)
+         return res
+           .status(400)
+           .send({
+             status: false,
+             message:
+               "cartId is not correct for the given user",
+           });
+     }
 
     if (cartAvaiable) {
       if (!quantity) quantity = 1;
