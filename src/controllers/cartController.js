@@ -265,7 +265,7 @@ const deleteCart = async function (req, res) {
       { items: [], totalPrice: 0, totalItems: 0 },
       { new: true }
     );
-    return res.status(200).send({
+    return res.status(204).send({
       status: true,
       message: "successfully deleted",
       data: deleteCart,
