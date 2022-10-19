@@ -234,7 +234,7 @@ const getCart = async function (req, res) {
       return res
         .status(404)
         .send({ status: false, message: "Cart empty", data: checkData });
-
+    
     return res
       .status(200)
       .send({ status: true, message: "Success", data: checkData });

@@ -404,7 +404,7 @@ const updateProducts = async (req, res) => {
         new: true,
       }
     );
-
+      
     return res.status(200).send({
       status: true,
       message: "Product is updated Successfully",

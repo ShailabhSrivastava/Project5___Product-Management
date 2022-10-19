@@ -56,6 +56,7 @@ const isValidImg = (img) => {
   return reg.test(img);
 };
 
+
 module.exports = {
   isValid,
   isValidEmail,
