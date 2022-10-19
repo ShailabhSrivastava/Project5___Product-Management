@@ -30,7 +30,7 @@ router.delete("/users/:userId/cart",authentication,isUserAuthorised, cartControl
 //===============================================
 
 router.post("/users/:userId/orders", orderController.createOrder)
-
+router.put("/users/:userId/orders", orderController.updateOrder)
 
 
 module.exports = router;

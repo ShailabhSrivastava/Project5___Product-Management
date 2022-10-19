@@ -88,4 +88,59 @@ const createOrder = async function (req, res) {
   }
 };
 
-module.exports = { createOrder };
+const updateOrder = async (req, res) => {
+  try {
+      let userId = req.params.userId
+      let data = req.body;
+      let { orderId, status } = data;
+
+      if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Body should not be empty" })
+
+      if (isValidObjectId(userId)) return res.status(400).send({ status: false, message: "Invalid UserId" })
+
+      const userExist = await userModel.findById(userId)
+
+      if (!userExist) return res.status(404).send({ status: false, message: "No User Found" })
+
+      if (!orderId) return res.status(400).send({ status: false, message: "Provide OrderId" })
+
+      if (!isValidObjectId(orderId)) return res.status(400).send({ status: false, message: "Invalid OrderId" })
+
+      let orderExist = await orderModel.findOne({ _id: orderId, isDeleted: false })
+
+      if (!orderExist) return res.status(404).send({ status: false, message: "There is no Order Exist" })
+
+      if (!status) return res.status(400).send({ status: false, message: "Status is require" })
+
+      statusAvailable = status.replace(/\s+/g, "").split(",").map(String)
+      ///\s+/g :- It finds any whitespace with two or more spaces and replaces it with a single space.
+
+      // A breakdown:
+
+      // \s: matches any whitespace in the string.
+      // +: quantifier that matches any whitespace greater than one space
+      // g: modifier that specifies a global match. So all matches are found (not just the first).
+
+      let arr = ["completed", "cancelled"]
+      let flag;
+      for (let i = 0; i < statusAvailable.length; i++) {
+          flag = arr.includes(statusAvailable[i]);
+      }
+
+      if (!flag) return res.status(400).send({ status: false, message: "Enter a valid status completed or cancelled" })
+
+      data["status"] = statusAvailable
+
+      if (orderExist.cancellable == false) return res.status(400).send({ status: false, message: "Order is not cancelled" })
+
+      orderExist.status = status;
+
+      let update = await orderModel.findOneAndUpdate({ _id: orderId }, { $set: orderExist }, { new: true });
+
+      return res.status(200).send({ status: true, message: "order Updated", data: update })
+  } catch (err) {
+      return res.status(500).send({ status: false, message: err.message })
+  }
+}
+
+module.exports = { createOrder , updateOrder };
