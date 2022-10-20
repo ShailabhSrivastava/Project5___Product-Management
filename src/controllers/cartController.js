@@ -41,8 +41,7 @@ const createCart = async function (req, res) {
       if (checking) {
         return res.status(409).send({
           status: false,
-          message:
-            "User already has a cart, please enter cartId",
+          message: "User already has a cart, please enter cartId",
         });
       }
     }
@@ -121,10 +120,9 @@ const createCart = async function (req, res) {
 const updateCart = async (req, res) => {
   try {
     let data = req.body;
-    let userId = req.params.userId;
     let { cartId, productId, removeProduct } = data;
 
-    if (Object.keys(data).length == 0)
+    if (!isValidRequestBody(data))
       return res
         .status(400)
         .send({ status: false, message: "Provide the data" });
@@ -164,63 +162,61 @@ const updateCart = async (req, res) => {
         .send({ status: false, message: "Provide the cartId" });
 
     if (!isValidObjectId(cartId))
-      return res.status(400).send({ status: false, message: "Invalid cartId" });
+      return res.status(400).send({ status: false, message: "Invalid CartId" });
 
     let cartExist = await cartModel.findById(cartId);
 
+    if (!cartExist)
+      return res.status(400).send({ status: false, message: "cart not found" });
+
+    if (cartExist.items.length == 0) {
+      return res
+        .status(400)
+        .send({ status: false, message: "There is No Item in This Cart" });
+    }
+
     let flag = false;
-
-    if (cartExist) {
-      if (cartExist.items.length == 0) {
-        return res
-          .status(400)
-          .send({ status: false, message: "There is No Item in This Cart" });
-      }
-
-      for (let i = 0; i < cartExist.items.length; i++) {
-        if (
-          cartExist.items[i].productId == productId &&
-          cartExist.items[i].quantity > 0
-        ) {
-          if (removeProduct == 1) {
-            cartExist.items[i].quantity -= 1;
-            cartExist.totalPrice -= product.price;
-            if (cartExist.items[i].quantity == 0) {
-              cartExist.items.splice(i, 1);
-            }
-          } else if (removeProduct == 0) {
-            cartExist.totalPrice =
-              cartExist.totalPrice -
-              cartExist.items[i].quantity * product.price;
-            cartExist.items.splice(i, 1);
+    let items = cartExist.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].productId == productId) {
+        if (removeProduct == 1) {
+          items[i].quantity -= 1
+          cartExist.totalPrice -= product.price
+          if (items[i].quantity == 0) {
+           items.splice(i, 1);
           }
-          flag = true;
-
-          cartExist.totalItems = cartExist.items.length;
-          let result = await cartModel.findOneAndUpdate(
-            { _id: cartId },
-            { $set: cartExist },
-            { new: true }
-          );
-          return res.status(200).send({
-            status: true,
-            message: "Success",
-            data: result,
-          });
+        } else if (removeProduct == 0) {
+          cartExist.totalPrice =
+            cartExist.totalPrice - items[i].quantity * product.price;
+          items.splice(i, 1);
         }
-      }
-      if (flag == false) {
-        return res.status(404).send({
-          status: false,
-          message: `There is no Product with this ${productId} or exist in ur cart`,
+        flag = true;
+
+        cartExist.totalItems = items.length;
+        let result = await cartModel.findOneAndUpdate(
+          { _id: cartId },
+          { $set: cartExist },
+          { new: true }
+        );
+        return res.status(200).send({
+          status: true,
+          message: "Success",
+          data: result,
         });
       }
-    } else {
+    }
+    if (flag == false) {
       return res.status(404).send({
         status: false,
-        message: `There is No Cart with id  ${cartId} exist`,
+        message: `There is no Product with this ${productId} or exist in ur cart`,
       });
     }
+    // } else {
+    //   return res.status(404).send({
+    //     status: false,
+    //     message: `cart not found`,
+    //   });
+    // }
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }

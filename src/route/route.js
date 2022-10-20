@@ -23,14 +23,14 @@ router.delete("/products/:productId",productController.deleteProductById)
 //==================================
 
 router.post("/users/:userId/cart",authentication,isUserAuthorised,cartController.createCart)
-router.get("/users/:userId/cart", cartController.getCart)
+router.get("/users/:userId/cart",authentication,isUserAuthorised, cartController.getCart)
 router.put("/users/:userId/cart", authentication,isUserAuthorised,cartController.updateCart)
 router.delete("/users/:userId/cart",authentication,isUserAuthorised, cartController.deleteCart)
 
 //===============================================
 
-router.post("/users/:userId/orders", orderController.createOrder)
-router.put("/users/:userId/orders", orderController.updateOrder)
+router.post("/users/:userId/orders",authentication,isUserAuthorised, orderController.createOrder)
+router.put("/users/:userId/orders", authentication, isUserAuthorised, orderController.updateOrder)
 
 
 module.exports = router;
