@@ -203,7 +203,7 @@ const getProducts = async function (req, res) {
         .status(404)
         .send({ status: false, message: "No product found" });
 
-    return res.status(200).send({ status: true, data: productDetail });
+    return res.status(200).send({ status: true,message:"Success", data: productDetail });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
@@ -229,7 +229,7 @@ const getByID = async function (req, res) {
         .send({ status: false, message: "Product not found" });
     return res
       .status(200)
-      .send({ status: true, message: "success", data: checkData });
+      .send({ status: true, message: "Success", data: checkData });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
@@ -407,7 +407,7 @@ const updateProducts = async (req, res) => {
       
     return res.status(200).send({
       status: true,
-      message: "Product is updated Successfully",
+      message: "Success",
       data: updatedProduct,
     });
   } catch (err) {
@@ -447,7 +447,7 @@ const deleteProductById = async (req, res) => {
 
     return res.status(200).send({
       status: true,
-      message: `product deleted successfully .`,
+      message: `Success`,
       data: deletedProduct,
     });
   } catch (err) {
