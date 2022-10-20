@@ -6,6 +6,8 @@ const {
   isValidObjectId,
 } = require("../validators/validation");
 
+//=================================CREATE ORDER=========================================
+
 const createOrder = async function (req, res) {
   try {
     let userId = req.params.userId;
@@ -81,6 +83,9 @@ const createOrder = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
+
+//=====================================UPDATE CART=====================================
 
 const updateOrder = async (req, res) => {
   try {
