@@ -186,7 +186,6 @@ const createUser = async function (req, res) {
       }
     }
 
-    //Saving password in encrypted format
     let salt = await bcrypt.genSalt(10);
     data.password = await bcrypt.hash(data.password, salt);
     const user = await userModel.create(data);
@@ -232,14 +231,12 @@ const userLogin = async function (req, res) {
         .status(404)
         .send({ status: false, message: "Not a register email Id" });
 
-    //----------[Password Verification]
     let decodePwd = await bcrypt.compare(password, Login.password);
     if (!decodePwd)
       return res
         .status(400)
         .send({ status: false, message: "Password not match" });
 
-    //----------[JWT token generate]
     let token = jwt.sign(
       {
         userId: Login._id.toString(),
@@ -247,9 +244,6 @@ const userLogin = async function (req, res) {
       "As calm as the sea",
       { expiresIn: "50d" }
     );
-
-    // res.setHeader("x-api-key", token);
-    //no need for this
 
     return res.status(200).send({
       status: true,
@@ -291,13 +285,6 @@ const updateUser = async function (req, res) {
     let userId = req.params.userId;
     let data = req.body;
     const { fname, lname, email, phone, password,file, address } = data;
-
-    // if (!isValidObjectId(userId)) {
-    //   return res.status(400).send({
-    //     status: false,
-    //     message: "Please enter valid Object Params Id",
-    //   });
-    // }
 
     let user = await userModel.findById(userId);
     if (!user) {
@@ -376,7 +363,6 @@ const updateUser = async function (req, res) {
           .status(400)
           .send({ status: false, message: "password is invalid" });
 
-      //Saving password in encrypted format
       let salt = await bcrypt.genSalt(10);
       updateQueries["password"] = await bcrypt.hash(data.password, salt);
     }
