@@ -268,7 +268,9 @@ const getProfile = async function (req, res) {
 
     const checkUser = await userModel.findById(userId);
     if (!checkUser)
-      return res.status(404).send({ status: false, message: "UserId not found" });
+      return res
+        .status(404)
+        .send({ status: false, message: "UserId not found" });
 
     return res
       .status(200)
@@ -284,7 +286,7 @@ const updateUser = async function (req, res) {
   try {
     let userId = req.params.userId;
     let data = req.body;
-    const { fname, lname, email, phone, password,file, address } = data;
+    const { fname, lname, email, phone, password, file, address } = data;
 
     let user = await userModel.findById(userId);
     if (!user) {
@@ -429,7 +431,7 @@ const updateUser = async function (req, res) {
         status: false,
         message: "please give some queries to update",
       });
-      
+
     let updatedData = await userModel.findOneAndUpdate(
       { _id: userId },
       updateQueries,

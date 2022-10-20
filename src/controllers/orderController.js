@@ -11,7 +11,7 @@ const {
 const createOrder = async function (req, res) {
   try {
     let userId = req.params.userId;
-  
+
     let data = req.body;
     if (!isValidRequestBody(data))
       return res
@@ -84,7 +84,6 @@ const createOrder = async function (req, res) {
   }
 };
 
-
 //=====================================UPDATE CART=====================================
 
 const updateOrder = async (req, res) => {
@@ -140,12 +139,10 @@ const updateOrder = async (req, res) => {
     }
 
     if (!flag)
-      return res
-        .status(400)
-        .send({
-          status: false,
-          message: "Enter a valid status completed or cancelled",
-        });
+      return res.status(400).send({
+        status: false,
+        message: "Enter a valid status completed or cancelled",
+      });
 
     data["status"] = statusAvailable;
 

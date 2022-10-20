@@ -6,7 +6,7 @@ const {
   isValidObjectId,
   isValidImg,
   isValidName,
-  isValidTitle
+  isValidTitle,
 } = require("../validators/validation");
 
 const createProducts = async (req, res) => {
@@ -164,9 +164,7 @@ const createProducts = async (req, res) => {
 const getProducts = async function (req, res) {
   try {
     let data = req.query;
-    let { size, name, priceLessThan } = data; //Destructuring
-
-    // if (!data) return res.status(400).send({ status: false, message: "please give some data to get products list" })
+    let { size, name, priceLessThan } = data;
 
     let ndata = {};
 
@@ -203,7 +201,9 @@ const getProducts = async function (req, res) {
         .status(404)
         .send({ status: false, message: "No product found" });
 
-    return res.status(200).send({ status: true,message:"Success", data: productDetail });
+    return res
+      .status(200)
+      .send({ status: true, message: "Success", data: productDetail });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
@@ -316,8 +316,7 @@ const updateProducts = async (req, res) => {
     if (currencyFormat) {
       return res.status(400).send({
         status: false,
-        message:
-          "You cannot change currencyFormat, By default it is set to ₹",
+        message: "You cannot change currencyFormat, By default it is set to ₹",
       });
     }
 
@@ -398,13 +397,13 @@ const updateProducts = async (req, res) => {
       });
 
     const updatedProduct = await productModel.findOneAndUpdate(
-      { _id: productId, isDeleted:false },
+      { _id: productId, isDeleted: false },
       updateProduct,
       {
         new: true,
       }
     );
-      
+
     return res.status(200).send({
       status: true,
       message: "Success",
