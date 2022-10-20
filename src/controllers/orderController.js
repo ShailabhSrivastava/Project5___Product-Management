@@ -1,5 +1,6 @@
 const orderModel = require("../models/orderModel");
 const cartModel = require("../models/cartModel");
+const userModel = require("../models/userModel");
 const {
   isValidRequestBody,
   isValidObjectId,
@@ -48,13 +49,11 @@ const createOrder = async function (req, res) {
 
     if (status || typeof status == "string") {
       if (
-        status != "pending" &&
-        status != "completed" &&
-        status != "canceled"
+        status != "pending" 
       ) {
         return res.status(400).send({
           status: false,
-          message: "status can contain only pending, completed or canceled",
+          message: "status can contain only pending",
         });
       }
     }
@@ -96,7 +95,7 @@ const updateOrder = async (req, res) => {
 
       if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Body should not be empty" })
 
-      if (isValidObjectId(userId)) return res.status(400).send({ status: false, message: "Invalid UserId" })
+      if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "Invalid UserId" })
 
       const userExist = await userModel.findById(userId)
 
@@ -131,7 +130,9 @@ const updateOrder = async (req, res) => {
 
       data["status"] = statusAvailable
 
-      if (orderExist.cancellable == false) return res.status(400).send({ status: false, message: "Order is not cancelled" })
+      if (orderExist.cancellable == false){
+        if(status!="completed")return res.status(400).send({status:false,message:"can't cancel the order"})
+      }
 
       orderExist.status = status;
 
