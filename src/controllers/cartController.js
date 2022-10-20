@@ -46,7 +46,8 @@ const createCart = async function (req, res) {
       }
     }
 
-    let cartAvaiable = await cartModel.findOne({ userId: userId });
+    let cartAvaiable = await cartModel.findOne({ userId: userId })
+
     if (cartId) {
       if (!isValidObjectId(cartId))
         return res
@@ -180,10 +181,10 @@ const updateCart = async (req, res) => {
     for (let i = 0; i < items.length; i++) {
       if (items[i].productId == productId) {
         if (removeProduct == 1) {
-          items[i].quantity -= 1
-          cartExist.totalPrice -= product.price
+          items[i].quantity -= 1;
+          cartExist.totalPrice -= product.price;
           if (items[i].quantity == 0) {
-           items.splice(i, 1);
+            items.splice(i, 1);
           }
         } else if (removeProduct == 0) {
           cartExist.totalPrice =
@@ -211,12 +212,6 @@ const updateCart = async (req, res) => {
         message: `There is no Product with this ${productId} or exist in ur cart`,
       });
     }
-    // } else {
-    //   return res.status(404).send({
-    //     status: false,
-    //     message: `cart not found`,
-    //   });
-    // }
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
