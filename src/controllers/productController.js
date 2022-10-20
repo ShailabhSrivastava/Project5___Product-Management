@@ -153,7 +153,7 @@ const createProducts = async (req, res) => {
     const createdProduct = await productModel.create(data);
     return res.status(201).send({
       status: true,
-      message: "Product is Created Successfully",
+      message: "Success",
       data: createdProduct,
     });
   } catch (err) {

@@ -16,9 +16,10 @@ const createCart = async function (req, res) {
     let cartId = req.body.cartId;
 
     if (!isValidRequestBody(data))
-      return res
-        .status(400)
-        .send({ status: false, message: "Please provide all the required data" });
+      return res.status(400).send({
+        status: false,
+        message: "Please provide all the required data",
+      });
 
     if (!isValidObjectId(productId))
       return res
@@ -35,23 +36,30 @@ const createCart = async function (req, res) {
         .status(404)
         .send({ status: false, message: "Product not found" });
 
+    if (!cartId) {
+      let checking = await cartModel.findOne({ userId: userId });
+      if (checking) {
+        return res.status(409).send({
+          status: false,
+          message:
+            "User already has a cart, please enter cartId",
+        });
+      }
+    }
+
     let cartAvaiable = await cartModel.findOne({ userId: userId });
+    if (cartId) {
+      if (!isValidObjectId(cartId))
+        return res
+          .status(400)
+          .send({ status: false, message: "Invalid cartId" });
 
-     if (cartId) {
-       if (!isValidObjectId(cartId))
-         return res
-           .status(400)
-           .send({ status: false, message: "Invalid cartId" });
-
-       if (cart._id.toString() != cartId)
-         return res
-           .status(400)
-           .send({
-             status: false,
-             message:
-               "cartId is not correct for the given user",
-           });
-     }
+      if (cartAvaiable._id.toString() != cartId)
+        return res.status(400).send({
+          status: false,
+          message: "cartId is not correct for the given user",
+        });
+    }
 
     if (cartAvaiable) {
       if (!quantity) quantity = 1;
@@ -82,7 +90,7 @@ const createCart = async function (req, res) {
       );
       return res
         .status(201)
-        .send({ status: true, message: "Created", data: cart });
+        .send({ status: true, message: "Success", data: cart });
     }
 
     if (!cartAvaiable) {
@@ -100,7 +108,7 @@ const createCart = async function (req, res) {
     let createCart = await cartModel.create(finalCart);
     return res.status(201).send({
       status: true,
-      message: "cart successfully created",
+      message: "Success",
       data: createCart,
     });
   } catch (err) {
@@ -196,7 +204,7 @@ const updateCart = async (req, res) => {
           );
           return res.status(200).send({
             status: true,
-            message: "Your Cart is Updated",
+            message: "Success",
             data: result,
           });
         }
@@ -234,7 +242,7 @@ const getCart = async function (req, res) {
       return res
         .status(404)
         .send({ status: false, message: "Cart empty", data: checkData });
-    
+
     return res
       .status(200)
       .send({ status: true, message: "Success", data: checkData });
@@ -274,6 +282,5 @@ const deleteCart = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
-
 
 module.exports = { createCart, getCart, deleteCart, updateCart };
