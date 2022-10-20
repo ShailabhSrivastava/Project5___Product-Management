@@ -17,7 +17,7 @@ app.use(multer().any())
 app.use('/', route);
 
 app.all("/*", function (req, res) {
-    res.status(404).send({ status: false, message: "Kindly give correct information in path param ! UNDERSTAND" });
+    res.status(404).send({ status: false, message: "Incorrect URL" });
 });
 
 app.listen(process.env.PORT || 3000, function () {

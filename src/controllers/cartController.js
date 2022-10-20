@@ -211,22 +211,32 @@ const updateCart = async (req, res) => {
         flag = true;
 
         cartExist.totalItems = items.length;
+
         let result = await cartModel.findOneAndUpdate(
           { _id: cartId },
           { $set: cartExist },
           { new: true }
         );
+
+        let fetchedData = await cartModel.findById(result._id).populate({
+          path: "items",
+          populate: {
+            path: "productId",
+            select: ["title", "price", "productImage"],
+          },
+        });
+
         return res.status(200).send({
           status: true,
           message: "Success",
-          data: result,
+          data: fetchedData,
         });
       }
     }
     if (flag == false) {
       return res.status(404).send({
         status: false,
-        message: `There is no Product with this ${productId} or exist in ur cart`,
+        message: `Product not found`,
       });
     }
   } catch (err) {
@@ -251,9 +261,17 @@ const getCart = async function (req, res) {
         .status(404)
         .send({ status: false, message: "Cart empty", data: checkData });
 
+    let fetchedData = await cartModel.findById(checkData._id).populate({
+      path: "items",
+      populate: {
+        path: "productId",
+        select: ["title", "price", "productImage"],
+      },
+    });
+
     return res
       .status(200)
-      .send({ status: true, message: "Success", data: checkData });
+      .send({ status: true, message: "Success", data: fetchedData });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
