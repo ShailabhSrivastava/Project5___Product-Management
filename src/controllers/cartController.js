@@ -46,7 +46,7 @@ const createCart = async function (req, res) {
       }
     }
 
-    let cartAvaiable = await cartModel.findOne({ userId: userId })
+    let cartAvaiable = await cartModel.findOne({ userId: userId });
 
     if (cartId) {
       if (!isValidObjectId(cartId))
@@ -88,9 +88,18 @@ const createCart = async function (req, res) {
         { $set: updateData },
         { new: true }
       );
+
+      let fetchedData = await cartModel.findById(cart._id).populate({
+        path: "items",
+        populate: {
+          path: "productId",
+          select: ["title", "price", "productImage"],
+        },
+      });
+
       return res
         .status(201)
-        .send({ status: true, message: "Success", data: cart });
+        .send({ status: true, message: "Success", data: fetchedData });
     }
 
     if (!cartAvaiable) {
@@ -106,16 +115,24 @@ const createCart = async function (req, res) {
       };
     }
     let createCart = await cartModel.create(finalCart);
+    let fetchedData = await cartModel.findById(createCart._id).populate({
+      path: "items",
+      populate: {
+        path: "productId",
+        select: ["title", "price", "productImage"],
+      },
+    });
+
     return res.status(201).send({
       status: true,
       message: "Success",
-      data: createCart,
+      data: fetchedData,
     });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
-
+//create cart tested
 //==================================UPDATE CART===============================================
 
 const updateCart = async (req, res) => {
